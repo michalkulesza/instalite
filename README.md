@@ -2,8 +2,6 @@
 
 A desktop shell for Instagram's official website that hides Reels, Explore, ads and suggestions, and stops the home feed after 25 posts. Instagram owns every sign-in, two-factor, challenge and session screen; the app never sees your credentials.
 
-This is a proof of concept. The feed policy has not been verified against a signed-in account, so treat it as best effort rather than a guarantee.
-
 ## Contents
 
 | Path                                                     | What it is                                                                                      |
