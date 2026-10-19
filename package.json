@@ -1,0 +1,17 @@
+{
+  "name": "instalite",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @instalite/electron dev",
+    "legacy:dev": "concurrently -n api,web -c blue,green \"pnpm api:dev\" \"pnpm --filter @instalite/web dev\"",
+    "api:dev": "uv run --directory apps/api uvicorn instalite_api.main:app --reload --host 127.0.0.1 --port 3001",
+    "api:start": "uv run --directory apps/api uvicorn instalite_api.main:app --host 127.0.0.1 --port 3001",
+    "api:check": "uv run --directory apps/api python -m compileall -q instalite_api",
+    "electron:dev": "pnpm --filter @instalite/electron dev",
+    "electron:start": "pnpm --filter @instalite/electron start",
+    "start": "pnpm electron:start",
+    "build": "pnpm --filter @instalite/shared build && pnpm --filter @instalite/web build && pnpm --filter @instalite/electron build && pnpm api:check",
+    "typecheck": "pnpm --filter @instalite/shared typecheck && pnpm --filter @instalite/web typecheck && pnpm --filter @instalite/electron typecheck && pnpm api:check"
+  },
+  "devDependencies": {"@types/node": "^22.10.5", "concurrently": "^9.1.2", "electron": "^39.0.0", "typescript": "^5.7.3"}
+}

@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Electron downloads its platform-specific executable during postinstall.
+# pnpm 10 requires explicit approval for dependency lifecycle scripts.
+onlyBuiltDependencies:
+  - electron
