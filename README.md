@@ -1,44 +1,66 @@
-# Instalite desktop proof of concept
+# instalite
 
-Instalite is an Electron shell for Instagram's official website. Instagram owns the sign-in, password, two-factor, challenge, and session screens. This app does not contain a credential form, receive credentials, or run a local login API.
+A desktop shell for Instagram's official website that hides Reels, Explore, ads and suggestions, and stops the home feed after 25 posts. Instagram owns every sign-in, two-factor, challenge and session screen; the app never sees your credentials.
 
-## Run the desktop app
+This is a proof of concept. The feed policy has not been verified against a signed-in account, so treat it as best effort rather than a guarantee.
 
-1. Install Node.js 22 or later.
-2. Run `npm install` from the repository root.
-3. Run `npm run dev`.
+## Contents
+
+| Path                                                     | What it is                                                                                      |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [apps/electron](apps/electron)                           | The desktop app: an Electron window that loads instagram.com in a locked-down view              |
+| [apps/electron/src/feed-policy.ts](apps/electron/src/feed-policy.ts) | The script injected into Instagram's home route that hides content and enforces the post limit |
+| [packages/shared](packages/shared)                       | Shared TypeScript code for the workspaces                                                       |
+| [apps/web](apps/web), [apps/api](apps/api)               | Legacy Vite + Python flow, kept for reference only and not used by the desktop app              |
+
+## Usage
+
+1. Install Node.js 22 or later and pnpm 10.
+
+2. Install dependencies from the repository root:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Build and open the desktop app:
+
+   ```bash
+   pnpm dev
+   ```
+
 4. Sign in and complete any verification directly in the Instagram page.
 
-The desktop app keeps the browser session in Electron's local `persist:instalite-instagram` profile. A later launch uses that profile, subject to Instagram's own session rules. Choose **Instalite > Home** to return to the home feed and **Reload** to refresh it.
+The session is stored in Electron's local `persist:instalite-instagram` profile, so later launches stay signed in for as long as Instagram allows. Choose **Instalite > Home** to return to the feed and **Reload** to refresh it.
+
+### Commands
+
+| Command               | What it does                                             |
+| --------------------- | -------------------------------------------------------- |
+| `pnpm dev`            | Builds and opens the desktop app                         |
+| `pnpm start`          | Opens an already built desktop app                       |
+| `pnpm build`          | Builds all workspaces and checks the legacy API          |
+| `pnpm typecheck`      | Typechecks all workspaces and checks the legacy API      |
+| `pnpm legacy:dev`     | Runs the legacy API and web app (needs `uv` and `.env`)  |
 
 ## Feed policy
 
-The policy is a best-effort display filter applied only to the Instagram home route. It:
+On the home route only, the injected script:
 
-- hides identifiable Reels, Explore links, sponsored posts, and suggestions when their current page structure exposes those signals;
-- shows up to 25 identifiable `article` posts during the current app session; and
-- hides later posts and stops downward scrolling near the end once the limit is reached.
+- hides Reels, Explore links, sponsored posts and suggestions when the page markup exposes them;
+- shows up to 25 posts per app session; and
+- hides later posts and blocks further scrolling once the limit is reached.
 
-Instagram can change its markup or load content in ways this client cannot reliably classify. The policy has not been verified against a signed-in account in this repository, so it must be treated as a proof of concept rather than a guarantee that every ad, suggestion, Reel, or additional request is blocked.
+Instagram can change its markup at any time, and the script cannot classify what it cannot see.
 
 ## Security model
 
-Remote Instagram content runs with Node integration off, context isolation on, sandboxing on, web security on, and no preload bridge. The app denies all web permissions, downloads, embedded webviews, popups, and navigation outside Instagram and Facebook domains needed by Meta's sign-in flow. It does not open external links through the operating system.
+Instagram content runs with Node integration off, context isolation, sandboxing and web security on, and no preload bridge. The app denies all web permissions, downloads, webviews and popups, blocks navigation outside the Instagram and Facebook domains Meta's sign-in needs, and never opens links through the operating system.
 
-## Development commands
+## Legacy web/API
 
-`npm run dev` builds and opens the desktop app.
+`apps/web` and `apps/api` hold an earlier flow built on Instagram's unsupported private API. Neither is used by the desktop app, and the desktop app needs neither their `.env` nor their local data. A mobile app built with Expo is planned as a separate implementation.
 
-`npm run electron:dev` is an explicit alias for the desktop development command.
+## License
 
-`npm run electron:start` opens an already built desktop app.
-
-`npm run typecheck` checks the workspaces and legacy API.
-
-`npm run build` builds the workspaces and checks the legacy API.
-
-## Legacy web/API implementation
-
-`apps/web` and `apps/api` are retained for reference and are not used by the Electron app. Run `npm run legacy:dev` only when working on that prior Python/Vite flow. The Python API uses Instagram's unsupported private API and is not part of the current desktop login or session flow. Its `.env` and local data remain unnecessary for Electron.
-
-Expo and React Native are planned as a separate mobile implementation; they are not bundled into this desktop proof of concept.
+<!-- TODO: no LICENSE file yet. Add one and name it here. -->
